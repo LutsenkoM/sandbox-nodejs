@@ -1,5 +1,6 @@
 const express = require('express');
 const userRouter = require('./routers/user');
+const newsRouter = require('./routers/news');
 require('./db/mongoose');
 
 const app = express();
@@ -18,6 +19,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(userRouter);
+app.use(newsRouter);
 
 app.listen(port, () => {
   console.log(`Server is up on port ${port}`);
