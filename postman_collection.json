@@ -1,0 +1,509 @@
+{
+  "info": {
+    "name": "Online School Platform API",
+    "description": "Повна колекція для тестування API платформи онлайн школи",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:2000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "schoolId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "classId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inviteToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "1. Login as Super Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.accessToken);",
+                  "    console.log('✅ Access token saved:', response.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"SuperSecure123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login як Super Admin. Токен автоматично зберігається для інших запитів."
+          }
+        },
+        {
+          "name": "2. Get My Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Отримати інформацію про поточного користувача з membership та enrollments."
+          }
+        },
+        {
+          "name": "3. Accept Invite",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{inviteToken}}\",\n  \"password\": \"NewPassword123!\",\n  \"name\": \"Іван Петренко\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/accept-invite",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "accept-invite"]
+            },
+            "description": "Прийняти запрошення. Вставте inviteToken з консолі після створення запрошення."
+          }
+        },
+        {
+          "name": "4. Login as School Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.accessToken);",
+                  "    console.log('✅ School Admin token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"schooladmin@example.com\",\n  \"password\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login як School Admin після прийняття запрошення."
+          }
+        },
+        {
+          "name": "5. Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout (no-op для JWT, клієнт видаляє токен)."
+          }
+        }
+      ],
+      "description": "Endpoints для автентифікації та управління користувачами"
+    },
+    {
+      "name": "Super Admin",
+      "item": [
+        {
+          "name": "1. Create School",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('schoolId', response.id);",
+                  "    console.log('✅ School ID saved:', response.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Київська гімназія №1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schools",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools"]
+            },
+            "description": "Створити нову школу. Тільки Super Admin. School ID автоматично зберігається."
+          }
+        },
+        {
+          "name": "2. Invite School Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('=================================');",
+                  "    console.log('📧 INVITE URL (скопіюйте токен з URL):');",
+                  "    console.log(response.inviteUrl);",
+                  "    console.log('=================================');",
+                  "    // Витягуємо токен з URL",
+                  "    const url = new URL(response.inviteUrl);",
+                  "    const token = url.searchParams.get('token');",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('inviteToken', token);",
+                  "        console.log('✅ Invite token saved:', token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"schooladmin@example.com\",\n  \"expiresInHours\": 72\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schools/{{schoolId}}/invites/school-admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools", "{{schoolId}}", "invites", "school-admin"]
+            },
+            "description": "Запросити School Admin. Invite token автоматично зберігається в змінні."
+          }
+        }
+      ],
+      "description": "Endpoints доступні тільки для Super Admin"
+    },
+    {
+      "name": "School Admin",
+      "item": [
+        {
+          "name": "1. Get School Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/schools/{{schoolId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools", "{{schoolId}}"]
+            },
+            "description": "Отримати деталі школи з класами та membership."
+          }
+        },
+        {
+          "name": "2. Create Class",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('classId', response.id);",
+                  "    console.log('✅ Class ID saved:', response.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Математика 10-А\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schools/{{schoolId}}/classes",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools", "{{schoolId}}", "classes"]
+            },
+            "description": "Створити клас в школі. Class ID автоматично зберігається."
+          }
+        },
+        {
+          "name": "3. Invite Teacher",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('=================================');",
+                  "    console.log('📧 TEACHER INVITE URL:');",
+                  "    console.log(response.inviteUrl);",
+                  "    console.log('=================================');",
+                  "    const url = new URL(response.inviteUrl);",
+                  "    const token = url.searchParams.get('token');",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('inviteToken', token);",
+                  "        console.log('✅ Teacher invite token saved');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"teacher@example.com\",\n  \"role\": \"TEACHER\",\n  \"classId\": \"{{classId}}\",\n  \"expiresInHours\": 72\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schools/{{schoolId}}/invites",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools", "{{schoolId}}", "invites"]
+            },
+            "description": "Запросити вчителя до класу."
+          }
+        },
+        {
+          "name": "4. Invite Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    console.log('=================================');",
+                  "    console.log('📧 STUDENT INVITE URL:');",
+                  "    console.log(response.inviteUrl);",
+                  "    console.log('=================================');",
+                  "    const url = new URL(response.inviteUrl);",
+                  "    const token = url.searchParams.get('token');",
+                  "    if (token) {",
+                  "        pm.collectionVariables.set('inviteToken', token);",
+                  "        console.log('✅ Student invite token saved');",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@example.com\",\n  \"role\": \"STUDENT\",\n  \"classId\": \"{{classId}}\",\n  \"expiresInHours\": 72\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/schools/{{schoolId}}/invites",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools", "{{schoolId}}", "invites"]
+            },
+            "description": "Запросити студента до класу."
+          }
+        }
+      ],
+      "description": "Endpoints для School Admin (управління класами та запрошення)"
+    },
+    {
+      "name": "Classes & Messages",
+      "item": [
+        {
+          "name": "1. Get Class Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/classes/{{classId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["classes", "{{classId}}"]
+            },
+            "description": "Отримати деталі класу з enrollments. Доступно для всіх членів класу."
+          }
+        },
+        {
+          "name": "2. Create Message (Teacher only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"Завтра контрольна робота з математики. Підготуйтесь!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/classes/{{classId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["classes", "{{classId}}", "messages"]
+            },
+            "description": "Відправити повідомлення в клас. Тільки Teacher може відправляти."
+          }
+        },
+        {
+          "name": "3. Get All Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/classes/{{classId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["classes", "{{classId}}", "messages"]
+            },
+            "description": "Отримати всі повідомлення класу. Доступно для Teacher і Student."
+          }
+        }
+      ],
+      "description": "Endpoints для роботи з класами та повідомленнями"
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Перевірка статусу сервера"
+      }
+    }
+  ]
+}
+

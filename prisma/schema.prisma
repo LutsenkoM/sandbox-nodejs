@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum GlobalRole {
+  SUPER_ADMIN
+  USER
+}
+
+enum SchoolRole {
+  SCHOOL_ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum ClassRole {
+  TEACHER
+  STUDENT
+}
+
+enum InviteRole {
+  SUPER_ADMIN
+  SCHOOL_ADMIN
+  TEACHER
+  STUDENT
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String?
+  globalRole   GlobalRole @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships      Membership[]
+  classEnrollments ClassEnrollment[]
+  invitesCreated   InviteToken[]
+  messages         Message[]
+}
+
+model School {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  memberships Membership[]
+  classes     Class[]
+  invites     InviteToken[]
+}
+
+model Class {
+  id        String   @id @default(cuid())
+  schoolId  String
+  name      String
+  createdAt DateTime @default(now())
+
+  school      School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  enrollments ClassEnrollment[]
+  invites     InviteToken[]
+  messages    Message[]
+
+  @@index([schoolId])
+}
+
+model Membership {
+  id           String     @id @default(cuid())
+  userId       String
+  schoolId     String
+  roleInSchool SchoolRole
+  createdAt    DateTime   @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, schoolId])
+  @@index([userId])
+  @@index([schoolId])
+}
+
+model ClassEnrollment {
+  id          String    @id @default(cuid())
+  userId      String
+  classId     String
+  roleInClass ClassRole
+  createdAt   DateTime  @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, classId])
+  @@index([userId])
+  @@index([classId])
+}
+
+model InviteToken {
+  id              String     @id @default(cuid())
+  tokenHash       String     @unique
+  email           String
+  schoolId        String?
+  classId         String?
+  intendedRole    InviteRole
+  expiresAt       DateTime
+  usedAt          DateTime?
+  createdByUserId String
+  createdAt       DateTime   @default(now())
+
+  createdBy User    @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
+  school    School? @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  class     Class?  @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([tokenHash])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  classId   String
+  authorId  String
+  text      String
+  createdAt DateTime @default(now())
+
+  class  Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([classId])
+  @@index([authorId])
+}
+

@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = require("express");
+var classController = require("../controllers/classController");
+var validate_1 = require("../middlewares/validate");
+var auth_1 = require("../middlewares/auth");
+var message_1 = require("../validators/message");
+var router = (0, express_1.Router)();
+router.post('/classes/:classId/messages', auth_1.requireAuth, function (req, res, next) { return (0, auth_1.requireTeacherInClass)(req.params.classId)(req, res, next); }, (0, validate_1.validate)(message_1.createMessageSchema), classController.createMessage);
+router.get('/classes/:classId/messages', auth_1.requireAuth, function (req, res, next) { return (0, auth_1.requireMemberInClass)(req.params.classId)(req, res, next); }, classController.getMessages);
+router.get('/classes/:classId', auth_1.requireAuth, function (req, res, next) { return (0, auth_1.requireMemberInClass)(req.params.classId)(req, res, next); }, classController.getClass);
+exports.default = router;

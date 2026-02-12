@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = require("express");
+var authController = require("../controllers/authController");
+var validate_1 = require("../middlewares/validate");
+var auth_1 = require("../middlewares/auth");
+var auth_2 = require("../validators/auth");
+var router = (0, express_1.Router)();
+router.post('/auth/login', (0, validate_1.validate)(auth_2.loginSchema), authController.login);
+router.post('/auth/me', auth_1.requireAuth, authController.me);
+router.post('/auth/accept-invite', (0, validate_1.validate)(auth_2.acceptInviteSchema), authController.acceptInvite);
+router.post('/auth/logout', auth_1.requireAuth, authController.logout);
+exports.default = router;
