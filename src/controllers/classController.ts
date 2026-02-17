@@ -38,3 +38,12 @@ export async function getClass(req: Request, res: Response, next: NextFunction) 
   }
 }
 
+export async function getClassStudents(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { classId } = req.params;
+    const students = await classService.getClassStudents(classId);
+    res.json(students);
+  } catch (error) {
+    next(error);
+  }
+}

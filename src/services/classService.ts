@@ -72,3 +72,36 @@ export async function getClass(classId: string) {
   return classObj;
 }
 
+export async function getClassStudents(classId: string) {
+  // Verify class exists
+  const classObj = await prisma.class.findUnique({ where: { id: classId } });
+  if (!classObj) {
+    throw ApiError.notFound('Class not found');
+  }
+
+  const students = await prisma.classEnrollment.findMany({
+    where: {
+      classId,
+      roleInClass: 'STUDENT',
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          createdAt: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  return students.map(enrollment => ({
+    enrollmentId: enrollment.id,
+    enrolledAt: enrollment.createdAt,
+    student: enrollment.user,
+  }));
+}

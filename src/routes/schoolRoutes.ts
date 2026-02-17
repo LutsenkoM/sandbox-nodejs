@@ -14,6 +14,48 @@ const router = Router();
 /**
  * @openapi
  * /schools:
+ *   get:
+ *     tags:
+ *       - Super Admin
+ *     summary: Отримати список всіх шкіл
+ *     description: Тільки Super Admin може переглядати всі школи
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Список всіх шкіл
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/School'
+ *                   - type: object
+ *                     properties:
+ *                       classes:
+ *                         type: array
+ *                         items:
+ *                           $ref: '#/components/schemas/Class'
+ *                       memberships:
+ *                         type: array
+ *                       _count:
+ *                         type: object
+ *       401:
+ *         description: Не авторизований
+ *       403:
+ *         description: Доступ заборонено
+ */
+router.get(
+  '/schools',
+  requireAuth,
+  requireSuperAdmin,
+  schoolController.getAllSchools
+);
+
+/**
+ * @openapi
+ * /schools:
  *   post:
  *     tags:
  *       - Super Admin
@@ -229,6 +271,53 @@ router.get(
   requireAuth,
   (req, res, next) => requireSchoolAdmin(req.params.schoolId)(req, res, next),
   schoolController.getSchool
+);
+
+/**
+ * @openapi
+ * /schools/{schoolId}/classes:
+ *   get:
+ *     tags:
+ *       - School Admin
+ *     summary: Отримати список всіх класів школи
+ *     description: School Admin або Super Admin можуть переглядати класи школи
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: schoolId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID школи
+ *     responses:
+ *       200:
+ *         description: Список класів
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/components/schemas/Class'
+ *                   - type: object
+ *                     properties:
+ *                       enrollments:
+ *                         type: array
+ *                       _count:
+ *                         type: object
+ *       401:
+ *         description: Не авторизований
+ *       403:
+ *         description: Доступ заборонено
+ *       404:
+ *         description: Школу не знайдено
+ */
+router.get(
+  '/schools/:schoolId/classes',
+  requireAuth,
+  (req, res, next) => requireSchoolAdmin(req.params.schoolId)(req, res, next),
+  schoolController.getSchoolClasses
 );
 
 export default router;

@@ -136,4 +136,62 @@ router.get(
   classController.getClass
 );
 
+/**
+ * @openapi
+ * /classes/{classId}/students:
+ *   get:
+ *     tags:
+ *       - Classes
+ *     summary: Отримати список всіх учнів класу
+ *     description: Всі члени класу (Teacher і Student) можуть переглядати список учнів
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: classId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID класу
+ *     responses:
+ *       200:
+ *         description: Список учнів
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   enrollmentId:
+ *                     type: string
+ *                   enrolledAt:
+ *                     type: string
+ *                     format: date-time
+ *                   student:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         description: Не авторизований
+ *       403:
+ *         description: Доступ заборонено (не член класу)
+ *       404:
+ *         description: Клас не знайдено
+ */
+router.get(
+  '/classes/:classId/students',
+  requireAuth,
+  (req, res, next) => requireMemberInClass(req.params.classId)(req, res, next),
+  classController.getClassStudents
+);
+
 export default router;

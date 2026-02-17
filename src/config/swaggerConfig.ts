@@ -164,7 +164,7 @@ const options: swaggerJsdoc.Options = {
           properties: {
             inviteUrl: {
               type: 'string',
-              example: 'http://localhost:5173/accept-invite?token=abc123...'
+              example: 'http://localhost:3000/accept-invite?token=abc123...'
             },
             expiresAt: {
               type: 'string',

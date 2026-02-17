@@ -8,7 +8,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('30m'),
   SUPERADMIN_EMAIL: z.string().email(),
   SUPERADMIN_PASSWORD: z.string().min(8),
-  FRONTEND_ORIGIN: z.string().url().default('http://localhost:5173'),
+  FRONTEND_ORIGIN: z.string().url().default('http://localhost:3000'),
   BCRYPT_ROUNDS: z.string().default('12'),
 });
 

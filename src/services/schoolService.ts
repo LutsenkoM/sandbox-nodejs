@@ -141,3 +141,78 @@ export async function getSchool(schoolId: string) {
 
   return school;
 }
+
+export async function getAllSchools() {
+  const schools = await prisma.school.findMany({
+    include: {
+      classes: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      memberships: {
+        select: {
+          id: true,
+          roleInSchool: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          classes: true,
+          memberships: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return schools;
+}
+
+export async function getSchoolClasses(schoolId: string) {
+  // Verify school exists
+  const school = await prisma.school.findUnique({ where: { id: schoolId } });
+  if (!school) {
+    throw ApiError.notFound('School not found');
+  }
+
+  const classes = await prisma.class.findMany({
+    where: { schoolId },
+    include: {
+      enrollments: {
+        select: {
+          id: true,
+          roleInClass: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          enrollments: true,
+          messages: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return classes;
+}

@@ -172,7 +172,25 @@
       "name": "Super Admin",
       "item": [
         {
-          "name": "1. Create School",
+          "name": "1. Get All Schools",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/schools",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools"]
+            },
+            "description": "Отримати список всіх шкіл з класами та кількістю учасників."
+          }
+        },
+        {
+          "name": "2. Create School",
           "event": [
             {
               "listen": "test",
@@ -212,7 +230,7 @@
           }
         },
         {
-          "name": "2. Invite School Admin",
+          "name": "3. Invite School Admin",
           "event": [
             {
               "listen": "test",
@@ -285,7 +303,25 @@
           }
         },
         {
-          "name": "2. Create Class",
+          "name": "2. Get School Classes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/schools/{{schoolId}}/classes",
+              "host": ["{{baseUrl}}"],
+              "path": ["schools", "{{schoolId}}", "classes"]
+            },
+            "description": "Отримати список всіх класів школи з enrollments та кількістю учнів."
+          }
+        },
+        {
+          "name": "3. Create Class",
           "event": [
             {
               "listen": "test",
@@ -325,7 +361,7 @@
           }
         },
         {
-          "name": "3. Invite Teacher",
+          "name": "4. Invite Teacher",
           "event": [
             {
               "listen": "test",
@@ -373,7 +409,7 @@
           }
         },
         {
-          "name": "4. Invite Student",
+          "name": "5. Invite Student",
           "event": [
             {
               "listen": "test",
@@ -445,7 +481,25 @@
           }
         },
         {
-          "name": "2. Create Message (Teacher only)",
+          "name": "2. Get Class Students",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/classes/{{classId}}/students",
+              "host": ["{{baseUrl}}"],
+              "path": ["classes", "{{classId}}", "students"]
+            },
+            "description": "Отримати список всіх учнів класу. Доступно для Teacher і Student."
+          }
+        },
+        {
+          "name": "3. Create Message (Teacher only)",
           "request": {
             "method": "POST",
             "header": [
@@ -471,7 +525,7 @@
           }
         },
         {
-          "name": "3. Get All Messages",
+          "name": "4. Get All Messages",
           "request": {
             "method": "GET",
             "header": [
@@ -506,4 +560,3 @@
     }
   ]
 }
-

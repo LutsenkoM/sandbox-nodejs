@@ -84,3 +84,21 @@ export async function getSchool(req: Request, res: Response, next: NextFunction)
   }
 }
 
+export async function getAllSchools(req: Request, res: Response, next: NextFunction) {
+  try {
+    const schools = await schoolService.getAllSchools();
+    res.json(schools);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getSchoolClasses(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { schoolId } = req.params;
+    const classes = await schoolService.getSchoolClasses(schoolId);
+    res.json(classes);
+  } catch (error) {
+    next(error);
+  }
+}
